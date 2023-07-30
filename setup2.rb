@@ -18,12 +18,25 @@ OptionParser.new do |opts|
     options[:force] = true
   end
 
-  opts.on('-n', '--no-update', "Skip updating Homebrew to the latest version") do
-    options[:no_update] = true
+  opts.on('-o', '--no-homebrew-update', "Skip updating Homebrew to the latest version") do
+    options[:no_homebrew_update] = true
   end
+
+  opts.on('-a', '--no-package-update', "Skip updating Homebrew to the latest version") do
+    options[:no_package_update] = true
+  end
+
+
 
   opts.on('-d', '--dry-run', "Run the script as dry-run. No changes will be made.") do
     options[:dry_run] = true
+  end
+
+  #############
+  # not working properly
+  #############
+  opts.on('-p', '--force-pyenv', "Force reinitialize pyenv") do
+    options[:force_pyenv] = true
   end
 
 end.parse!
@@ -80,6 +93,26 @@ def install_package(package_name)
   system("brew install #{package_name} -q")
 end
 
+# # Runner method to execute all the commands
+# def run_setup(options)
+# Custom welcome banner
+puts <<~BANNER
+  #####
+  ##### Mac Setup
+  #####
+
+BANNER
+
+# Check if Homebrew is not installed or if the --force flag is provided
+puts
+puts "Installing brew..."
+unless homebrew_installed? || options[:force]
+  install_homebrew
+else
+  # Homebrew is already installed
+  puts "Brew already installed... skipping installation"
+end
+
 # Runner method to execute all the commands
 def run_setup(options)
   # Custom welcome banner
@@ -102,28 +135,53 @@ def run_setup(options)
     puts "Brew already installed... skipping installation"
   end
 
-  # Update Homebrew to the latest version unless --no-update is specified
-  unless options[:no_update]
-    update_homebrew
-  else
-    puts "Skipping update..."
-  end
+# Update Homebrew to the latest version unless --no-update is specified
+puts
+puts "Updating brew..."
+unless options[:no_homebrew_update]
+  update_homebrew
+else
+  puts "Skipping update..."
+end
+
+
+# Update Homebrew to the latest version unless --no-update is specified
+puts
+puts "Installing packages..."
+unless options[:no_package_update]
+  install_package('pyenv')
+  install_package('gh')
+  install_package('coreutils')
+else
+  puts "Skipping package installs..."
+end
+
+
+# Configure pyenv if not already configured or force_pyenv option is provided
+puts
+puts "Configuring pyenv..."
+if options[:force_pyenv] || !pyenv_configured?
+  configure_pyenv
+else
+  puts "pyenv is already configured."
+end
+
+
 
   # Install packages
   install_package('pyenv')
   install_package('gh')
   install_package('coreutils')
 
-  # Custom completion message
- puts <<~BANNER
-    #####
-    #####
-    ##### Mac Setup Completed successfully
-    #####
-    
-  BANNER
+# Custom completion message
+puts <<~BANNER
 
-end
+  #####
+  ##### Mac Setup Completed successfully
+  #####
+  
+BANNER
+# end
 
 # Call the runner method to execute all the commands
 run_setup(options)
