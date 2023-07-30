@@ -87,6 +87,12 @@ def install_package(package_name)
   system("brew install #{package_name} -q")
 end
 
+# Function to install a cask using Homebrew
+def install_cask(cask_name)
+  puts "Installing #{cask_name}..."
+  system("brew install --cask #{cask_name} -q")
+end
+
 # Runner method to execute all the commands
 def run_setup(options)
   # Custom welcome banner
@@ -118,6 +124,12 @@ def run_setup(options)
     install_package('pyenv')
     install_package('gh')
     install_package('coreutils')
+  else
+    puts "Skipping package installs..."
+  end
+
+  unless options[:skip_casks]
+    install_cask('spotify')
   else
     puts "Skipping package installs..."
   end
