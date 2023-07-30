@@ -157,13 +157,6 @@ else
   puts "pyenv is already configured."
 end
 
-
-
-  # Install packages
-  install_package('pyenv')
-  install_package('gh')
-  install_package('coreutils')
-
 # Custom completion message
 puts <<~BANNER
 
