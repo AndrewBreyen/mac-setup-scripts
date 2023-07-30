@@ -4,7 +4,6 @@ require 'optparse'
 require 'json'
 require 'pry'
 
-
 options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: setup.rb [options]"
@@ -18,25 +17,22 @@ OptionParser.new do |opts|
     options[:force] = true
   end
 
-  opts.on('-o', '--no-homebrew-update', "Skip updating Homebrew to the latest version") do
-    options[:no_homebrew_update] = true
+  opts.on('-n', '--no-update', "Skip updating Homebrew to the latest version") do
+    options[:no_update] = true
   end
-
-  opts.on('-a', '--no-package-update', "Skip updating Homebrew to the latest version") do
-    options[:no_package_update] = true
-  end
-
-
 
   opts.on('-d', '--dry-run', "Run the script as dry-run. No changes will be made.") do
     options[:dry_run] = true
   end
 
-  #############
-  # not working properly
-  #############
-  opts.on('-p', '--force-pyenv', "Force reinitialize pyenv") do
+  # New option to force reinitialization of pyenv with short argument -c
+  opts.on('-c', '--force-pyenv-config', "Force reinitialize pyenv") do
     options[:force_pyenv] = true
+  end
+
+  # New option to skip package installs with short argument -o
+  opts.on('-o', '--skip-packages', "Skip package installs") do
+    options[:skip_packages] = true
   end
 
 end.parse!
@@ -59,110 +55,89 @@ def update_homebrew
   system('brew update')
 end
 
-# # Function to fetch the latest minor version of a package from Homebrew
-# def latest_minor_version(package_name)
-#   latest_version = `brew list --versions #{package_name}`.lines.map do |line|
-#     line.match(/#{package_name}@(\d+\.\d+\.\d+)/)&.captures&.first
-#   end.compact.select do |version|
-#     version.match?(/^\d+\.\d+\.\d+$/)
-#   end.max_by do |version|
-#     Gem::Version.new(version)
-#   end
+# Function to configure pyenv
+def configure_pyenv(force = false)
+  # Add pyenv initialization to your shell profile (e.g., .bashrc or .zshrc)
+  # Note: You may need to adjust this depending on the shell you use.
+  shell_profile = File.expand_path("~/.zshrc") # Use .zshrc for Zsh
+  unless File.read(shell_profile).include?("pyenv init") && !force
+    File.open(shell_profile, "a") do |file|
+      file.puts("# Initialize pyenv")
+      file.puts('eval "$(pyenv init --path)"')
+      file.puts('eval "$(pyenv virtualenv-init -)"')
+    end
+    puts "Added pyenv initialization to #{shell_profile}."
+  else
+    puts "pyenv is already configured in #{shell_profile}."
+  end
 
-#   latest_version
-# end
+  # Source the shell profile to apply the changes to the current terminal session
+  system("source #{shell_profile}")
+end
 
-# # Function to install a package using Homebrew
-# def install_package(package_name, version = nil)
-#   # binding.pry
-#   if version.nil?
-#     version = latest_minor_version(package_name)
-#   end
+# Function to check if pyenv is already configured in the shell profile
+def pyenv_configured?
+  shell_profile = File.expand_path("~/.zshrc") # Use .zshrc for Zsh
+  File.read(shell_profile).include?("pyenv init")
+end
 
-#   if version
-#     puts "Installing #{package_name}@#{version}..."
-#     system("brew install #{package_name}@#{version}")
-#   else
-#     puts "No suitable version found for #{package_name}."
-#   end
-# end
-
-
+# Function to install a package using Homebrew
 def install_package(package_name)
   puts "Installing #{package_name}..."
   system("brew install #{package_name} -q")
 end
 
+# Runner method to execute all the commands
+def run_setup(options)
+  # Custom welcome banner
+  puts <<~BANNER
+    #####
+    #####
+    ##### Mac Setup
+    #####
 
+  BANNER
 
+  # Check if Homebrew is not installed or if the --force flag is provided
+  unless homebrew_installed? || options[:force]
+    install_homebrew
+  else
+    # Homebrew is already installed
+    puts "Brew already installed... skipping installation"
+  end
 
+  # Update Homebrew to the latest version unless --no-update is specified
+  unless options[:no_update]
+    update_homebrew
+  else
+    puts "Skipping update..."
+  end
 
+  # Install packages unless skip_packages option is provided
+  unless options[:skip_packages]
+    install_package('pyenv')
+    install_package('gh')
+    install_package('coreutils')
+  else
+    puts "Skipping package installs..."
+  end
 
+  # Configure pyenv if not already configured or force_pyenv option is provided
+  if options[:force_pyenv] || !pyenv_configured?
+    configure_pyenv
+  else
+    puts "pyenv is already configured."
+  end
 
-
-
-
-
-
-
-# # Runner method to execute all the commands
-# def run_setup(options)
-# Custom welcome banner
-puts <<~BANNER
-  #####
-  ##### Mac Setup
-  #####
-
-BANNER
-
-# Check if Homebrew is not installed or if the --force flag is provided
-puts
-puts "Installing brew..."
-unless homebrew_installed? || options[:force]
-  install_homebrew
-else
-  # Homebrew is already installed
-  puts "Brew already installed... skipping installation"
+  # Custom completion message
+  puts <<~BANNER
+    #####
+    #####
+    ##### Mac Setup Completed successfully
+    #####
+    
+  BANNER
 end
 
-
-# Update Homebrew to the latest version unless --no-update is specified
-puts
-puts "Updating brew..."
-unless options[:no_homebrew_update]
-  update_homebrew
-else
-  puts "Skipping update..."
-end
-
-
-# Update Homebrew to the latest version unless --no-update is specified
-puts
-puts "Installing packages..."
-unless options[:no_package_update]
-  install_package('pyenv')
-  install_package('gh')
-  install_package('coreutils')
-else
-  puts "Skipping package installs..."
-end
-
-
-# Configure pyenv if not already configured or force_pyenv option is provided
-puts
-puts "Configuring pyenv..."
-if options[:force_pyenv] || !pyenv_configured?
-  configure_pyenv
-else
-  puts "pyenv is already configured."
-end
-
-# Custom completion message
-puts <<~BANNER
-
-  #####
-  ##### Mac Setup Completed successfully
-  #####
-  
-BANNER
-# end
+# Call the runner method to execute all the commands
+run_setup(options)
