@@ -77,7 +77,7 @@ end
 
 def install_package(package_name)
   puts "Installing #{package_name}..."
-  system("brew install #{package_name}")
+  system("brew install #{package_name} -q")
 end
 
 # Runner method to execute all the commands
@@ -91,6 +91,8 @@ def run_setup(options)
 
   BANNER
 
+  ENV['HOMEBREW_VERBOSE'] = 'INFO'
+
   
   # Check if Homebrew is not installed or if the --force flag is provided
   unless homebrew_installed? || options[:force]
@@ -101,7 +103,7 @@ def run_setup(options)
   end
 
   # Update Homebrew to the latest version unless --no-update is specified
-  unless options.key?(:no_update) && options[:no_update]
+  unless options[:no_update]
     update_homebrew
   else
     puts "Skipping update..."
