@@ -16,7 +16,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7.x  # Replace '2.7.x' with the desired Ruby version
+          ruby-version: 2.7.*
 
       - name: Rubocop Linter
         uses: andrewmcodes/rubocop-linter-action@v3.0.0.rc2
