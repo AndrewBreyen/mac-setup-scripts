@@ -1,0 +1,48 @@
+IF: The command-line argument '-f' or '--force' is provided,
+THEN:
+    Set the option ':force' to true.
+
+IF: The command-line argument '-n' or '--no-update' is provided,
+THEN:
+    Set the option ':no_update' to true.
+
+IF: The command-line argument '-h' or '--help' is provided,
+THEN:
+    Print all the available arguments (usage help) and exit.
+
+Function: homebrew_installed?
+    Check if Homebrew is installed on the system.
+    RETURN: true if Homebrew is installed, otherwise false.
+
+Function: install_homebrew
+    Print "Installing Homebrew...".
+    Run the command to install Homebrew using a system call.
+
+Function: update_homebrew
+    Print "Updating Homebrew...".
+    Run the command to update Homebrew using a system call.
+
+Function: install_package(package_name)
+    Print "Installing <package_name>...".
+    Run the command to install the specified package using Homebrew.
+
+Function: run_setup(options)
+    Print a large banner indicating the script is starting.
+    IF: Homebrew is not installed or the '--force' option is provided,
+    THEN:
+        Call install_homebrew function.
+    ELSE:
+        Print "Brew already installed... skipping installation".
+
+    UNLESS: The '--no-update' option is specified,
+    THEN:
+        Call update_homebrew function.
+    ELSE:
+        Print "Skipping update...".
+
+    Call install_package function to install 'pyenv' package using Homebrew.
+    Call install_package function to install 'markdownlint' package using Homebrew.
+
+    Print a completion message indicating the script has finished.
+
+Call the run_setup function passing the options parsed from the command-line arguments.
