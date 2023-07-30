@@ -166,6 +166,3 @@ puts <<~BANNER
   
 BANNER
 # end
-
-# Call the runner method to execute all the commands
-run_setup(options)
