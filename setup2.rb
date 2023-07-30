@@ -93,6 +93,18 @@ def install_package(package_name)
   system("brew install #{package_name} -q")
 end
 
+
+
+
+
+
+
+
+
+
+
+
+
 # # Runner method to execute all the commands
 # def run_setup(options)
 # Custom welcome banner
@@ -113,27 +125,6 @@ else
   puts "Brew already installed... skipping installation"
 end
 
-# Runner method to execute all the commands
-def run_setup(options)
-  # Custom welcome banner
-  puts <<~BANNER
-    #####
-    #####
-    ##### Mac Setup
-    #####
-
-  BANNER
-
-  ENV['HOMEBREW_VERBOSE'] = 'INFO'
-
-  
-  # Check if Homebrew is not installed or if the --force flag is provided
-  unless homebrew_installed? || options[:force]
-    install_homebrew
-  else
-    # Homebrew is already installed
-    puts "Brew already installed... skipping installation"
-  end
 
 # Update Homebrew to the latest version unless --no-update is specified
 puts
