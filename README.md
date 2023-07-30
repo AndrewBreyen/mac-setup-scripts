@@ -2,6 +2,8 @@
 
 This script is designed to automate the setup process for a new Mac system. It uses Homebrew to install and update packages and can also configure `pyenv` and other tools.
 
+[![Lint using Rubocop](https://github.com/AndrewBreyen/mac-setup-scripts/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/AndrewBreyen/mac-setup-scripts/actions/workflows/lint.yml)
+
 ## Requirements
 
 - Ruby (tested on Ruby 2.6.10)
