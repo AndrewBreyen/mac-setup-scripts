@@ -56,8 +56,7 @@ def update_homebrew
 end
 
 # Function to configure pyenv
-# Function to configure pyenv
-def configure_pyenv(force = false)
+def configure_pyenv(force: false)
   update_shell_profile(force)
   source_shell_profile
 end
@@ -92,7 +91,6 @@ def source_shell_profile
   shell_profile = File.expand_path('~/.zshrc') # Use .zshrc for Zsh
   system("source #{shell_profile}")
 end
-
 
 # Function to check if pyenv is already configured in the shell profile
 def pyenv_configured?
