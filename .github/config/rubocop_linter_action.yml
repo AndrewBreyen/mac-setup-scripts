@@ -1,0 +1,8 @@
+# Sample Rubocop Configuration
+# Add your specific rules and settings here
+AllCops:
+  TargetRubyVersion: 2.7
+  Exclude:
+    - 'vendor/**/*'
+    - 'db/schema.rb'
+    - 'db/migrate/*'
