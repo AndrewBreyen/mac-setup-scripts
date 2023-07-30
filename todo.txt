@@ -1,0 +1,4 @@
+Put conditions check in methods
+
+install packages method that takes an array of packages
+

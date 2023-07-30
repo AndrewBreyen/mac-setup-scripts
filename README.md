@@ -13,7 +13,7 @@ This script is designed to automate the setup process for a new Mac system. It u
 Run the script using the following command:
 
 ```
-ruby setup2.rb [options]
+ruby setup.rb [options]
 ```
 
 ### Options
