@@ -5,8 +5,6 @@ require 'optparse'
 require 'json'
 require 'logger'
 
-require 'pry'
-
 LOG = Logger.new($stdout)
 LOG.level = Logger::INFO # Set the desired log level (can be Logger::ERROR, Logger::WARN, Logger::INFO, Logger::DEBUG)
 
