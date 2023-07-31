@@ -123,6 +123,7 @@ end
 # Function to source the shell profile to apply the changes
 def source_shell_profile
   shell_profile = File.expand_path('~/.zshrc') # Use .zshrc for Zsh
+  return false unless File.exist?(shell_profile)
   system("source #{shell_profile}")
 end
 
