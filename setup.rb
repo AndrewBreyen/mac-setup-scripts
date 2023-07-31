@@ -129,6 +129,7 @@ end
 # Function to check if pyenv is already configured in the shell profile
 def pyenv_configured?
   shell_profile = File.expand_path('~/.zshrc') # Use .zshrc for Zsh
+  return false unless File.exist?(shell_profile)
   File.read(shell_profile).include?('pyenv init')
 end
 
