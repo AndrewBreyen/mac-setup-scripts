@@ -15,7 +15,7 @@ LOG.formatter = proc do |severity, _datetime, _progname, msg|
 end
 
 OPTIONS = {} # rubocop:disable Style/MutableConstant
-OptionParser.new do |opts|
+OptionParser.new do |opts| # rubocop:disable Metrics/BlockLength
   opts.banner = 'Usage: setup.rb [options]'
 
   opts.on('-h', '--help', 'Print all the available arguments') do
@@ -45,6 +45,15 @@ OptionParser.new do |opts|
 
   opts.on('-a', '--skip-casks', 'Skip cask installs') do
     OPTIONS[:skip_casks] = true
+  end
+
+  opts.on('-y', '--skip-python', 'Skip python install') do
+    OPTIONS[:skip_pyenv_python_install] = true
+  end
+
+  opts.on('-r', '--force-python-install',
+          'Force installation of the latest stable Python even if it is already installed') do
+    OPTIONS[:force_python_install] = true
   end
 end.parse!
 
@@ -146,6 +155,28 @@ def install_cask(cask_name)
   end
 end
 
+# Function to install the latest stable version of Python using pyenv
+def install_python_with_pyenv
+  if OPTIONS[:skip_pyenv_python_install]
+    LOG.info 'Skipping python install...'
+  else
+    do_python_install
+  end
+end
+
+def do_python_install
+  latest_version = `pyenv install --list | grep -v - | grep -E "^\s*?[0-9\.]+$" | tail -1`.strip
+  installed_versions = `pyenv versions --bare`.split
+
+  if installed_versions.include?(latest_version) && !OPTIONS[:force_python_install]
+    LOG.info "Python #{latest_version} is already installed using pyenv. Skipping installation."
+  else
+    LOG.info "Installing the latest stable version of Python (#{latest_version}) using pyenv..."
+    system("yes | pyenv install #{latest_version}")
+    LOG.info 'Python installation completed.'
+  end
+end
+
 #########################
 # RUN                   #
 #########################
@@ -163,6 +194,7 @@ install_package('gh')
 install_package('coreutils')
 install_cask('spotify')
 configure_pyenv
+install_python_with_pyenv
 
 # Custom completion message
 puts <<~BANNER
