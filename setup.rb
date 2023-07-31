@@ -3,9 +3,18 @@
 
 require 'optparse'
 require 'json'
+require 'logger'
+
 require 'pry'
 
-options = {}
+LOG = Logger.new($stdout)
+LOG.level = Logger::INFO # Set the desired log level (can be Logger::ERROR, Logger::WARN, Logger::INFO, Logger::DEBUG)
+
+LOG.formatter = proc do |severity, _datetime, _progname, msg|
+  "#{severity[0]} -- : #{msg}\n"
+end
+
+OPTIONS = {} # rubocop:disable Style/MutableConstant
 OptionParser.new do |opts|
   opts.banner = 'Usage: setup.rb [options]'
 
@@ -14,26 +23,28 @@ OptionParser.new do |opts|
     exit
   end
 
-  opts.on('-f', '--force', 'Force Homebrew to install, even if it is already installed') do
-    options[:force] = true
+  opts.on('-f', '--force-homebrew', 'Force Homebrew to install, even if it is already installed') do
+    OPTIONS[:force_homebrew_install] = true
   end
 
-  opts.on('-n', '--no-update', 'Skip updating Homebrew to the latest version') do
-    options[:no_update] = true
+  opts.on('-n', '--no-homebrew-update', 'Skip updating Homebrew to the latest version') do
+    OPTIONS[:no_homebrew_update] = true
   end
 
   opts.on('-d', '--dry-run', 'Run the script as dry-run. No changes will be made.') do
-    options[:dry_run] = true
+    OPTIONS[:dry_run] = true
   end
 
-  # New option to force reinitialization of pyenv with short argument -c
   opts.on('-c', '--force-pyenv-config', 'Force reinitialize pyenv') do
-    options[:force_pyenv] = true
+    OPTIONS[:force_pyenv] = true
   end
 
-  # New option to skip package installs with short argument -o
   opts.on('-o', '--skip-packages', 'Skip package installs') do
-    options[:skip_packages] = true
+    OPTIONS[:skip_packages] = true
+  end
+
+  opts.on('-a', '--skip-casks', 'Skip cask installs') do
+    OPTIONS[:skip_casks] = true
   end
 end.parse!
 
@@ -43,29 +54,45 @@ def homebrew_installed?
 end
 
 # Function to install Homebrew
+# Check if Homebrew is not installed or if the --force flag is provided
 def install_homebrew
-  puts 'Installing Homebrew...'
-  system('export HOMEBREW_NO_INSTALL_FROM_API=1')
-  system('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"')
+  if homebrew_installed? || OPTIONS[:force_homebrew_install]
+    # Homebrew is already installed
+    LOG.info 'Homebrew already installed... Skipping installation'
+  else
+    LOG.info 'Installing Homebrew...'
+    system('export HOMEBREW_NO_INSTALL_FROM_API=1')
+    system('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"')
+  end
 end
 
 # Function to update Homebrew
 def update_homebrew
-  puts 'Updating Homebrew...'
-  system('brew update')
+  # Update Homebrew to the latest version unless --no-update is specified
+  if OPTIONS[:no_homebrew_update]
+    LOG.info 'Skipping Homebrew update...'
+  else
+    LOG.info 'Updating Homebrew...'
+    system('brew update')
+  end
 end
 
 # Function to configure pyenv
 def configure_pyenv(force: false)
-  update_shell_profile(force)
-  source_shell_profile
+  # Configure pyenv if not already configured or force_pyenv option is provided
+  if OPTIONS[:force_pyenv] || !pyenv_configured?
+    update_shell_profile(force)
+    source_shell_profile
+  else
+    LOG.info 'pyenv is already configured.'
+  end
 end
 
 # Function to update the shell profile with pyenv initialization
 def update_shell_profile(force)
   shell_profile = File.expand_path('~/.zshrc') # Use .zshrc for Zsh
   if pyenv_already_configured?(shell_profile) && !force
-    puts "pyenv is already configured in #{shell_profile}."
+    LOG.info "pyenv is already configured in #{shell_profile}."
   else
     add_pyenv_to_shell_profile(shell_profile)
   end
@@ -83,7 +110,7 @@ def add_pyenv_to_shell_profile(shell_profile)
     file.puts('eval "$(pyenv init --path)"')
     file.puts('eval "$(pyenv virtualenv-init -)"')
   end
-  puts "Added pyenv initialization to #{shell_profile}."
+  LOG.info "Added pyenv initialization to #{shell_profile}."
 end
 
 # Function to source the shell profile to apply the changes
@@ -100,14 +127,23 @@ end
 
 # Function to install a package using Homebrew
 def install_package(package_name)
-  puts "Installing #{package_name}..."
-  system("brew install #{package_name} -q")
+  # Install packages unless skip_packages option is provided
+  if OPTIONS[:skip_packages]
+    LOG.info "Skipping #{package_name} package install..."
+  else
+    LOG.info "Installing package #{package_name}..."
+    system("brew install #{package_name} -q")
+  end
 end
 
 # Function to install a cask using Homebrew
 def install_cask(cask_name)
-  puts "Installing #{cask_name}..."
-  system("brew install --cask #{cask_name} -q")
+  if OPTIONS[:skip_casks]
+    LOG.info 'Skipping cask installs...'
+  else
+    LOG.info "Installing cask #{cask_name}..."
+    system("brew install --cask #{cask_name} -q")
+  end
 end
 
 #########################
@@ -120,42 +156,13 @@ puts <<~BANNER
   #####
 BANNER
 
-# Check if Homebrew is not installed or if the --force flag is provided
-if homebrew_installed? || options[:force]
-  # Homebrew is already installed
-  puts 'Brew already installed... skipping installation'
-else
-  install_homebrew
-end
-
-# Update Homebrew to the latest version unless --no-update is specified
-if options[:no_update]
-  puts 'Skipping update...'
-else
-  update_homebrew
-end
-
-# Install packages unless skip_packages option is provided
-if options[:skip_packages]
-  puts 'Skipping package installs...'
-else
-  install_package('pyenv')
-  install_package('gh')
-  install_package('coreutils')
-end
-
-if options[:skip_casks]
-  puts 'Skipping package installs...'
-else
-  install_cask('spotify')
-end
-
-# Configure pyenv if not already configured or force_pyenv option is provided
-if options[:force_pyenv] || !pyenv_configured?
-  configure_pyenv
-else
-  puts 'pyenv is already configured.'
-end
+install_homebrew
+update_homebrew
+install_package('pyenv')
+install_package('gh')
+install_package('coreutils')
+install_cask('spotify')
+configure_pyenv
 
 # Custom completion message
 puts <<~BANNER
