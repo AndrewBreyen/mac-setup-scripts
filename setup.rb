@@ -124,6 +124,7 @@ end
 def source_shell_profile
   shell_profile = File.expand_path('~/.zshrc') # Use .zshrc for Zsh
   return false unless File.exist?(shell_profile)
+
   system("source #{shell_profile}")
 end
 
@@ -131,6 +132,7 @@ end
 def pyenv_configured?
   shell_profile = File.expand_path('~/.zshrc') # Use .zshrc for Zsh
   return false unless File.exist?(shell_profile)
+
   File.read(shell_profile).include?('pyenv init')
 end
 
