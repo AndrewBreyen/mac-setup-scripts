@@ -28,25 +28,72 @@ jobs:
     - name: Run RuboCop
       run: rubocop
 
-    - name: Post to a Slack channel
-      id: slack
-      uses: slackapi/slack-github-action@v1.23.0
+    - id: slack
+      uses: slackapi/slack-github-action@v1.24.0
       with:
-        # Slack channel ID where message will be posted. Needed if using bot token
         channel-id: "C04JZM55VC2"
-        # Message to post into Slack. Needed if using bot token
         payload: |
           {
-            "text": "MacServer Documentation Build result:\n${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
-            "blocks": [
+            "text": "Deployment started (In Progress)",
+            "attachments": [
               {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "MacSetup build result:\n${{ job.status }}\n\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-                }
+                "pretext": "Deployment started",
+                "color": "dbab09",
+                "fields": [
+                  {
+                    "title": "Status",
+                    "short": true,
+                    "value": "In Progress"
+                  }
+                ]
               }
             ]
           }
       env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN}}
+    - uses: slackapi/slack-github-action@v1.24.0
+      with:
+        channel-id: "C04JZM55VC2"
+        update-ts: ${{ steps.slack.outputs.ts }}
+        payload: |
+          {
+            "text": "Deployment finished (Completed)",
+            "attachments": [
+              {
+                "pretext": "Deployment finished",
+                "color": "28a745",
+                "fields": [
+                  {
+                    "title": "Status",
+                    "short": true,
+                    "value": "Completed"
+                  }
+                ]
+              }
+            ]
+          }
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN}}
+
+    # - name: Post to a Slack channel
+    #   id: slack
+    #   uses: slackapi/slack-github-action@v1.23.0
+    #   with:
+    #     # Slack channel ID where message will be posted. Needed if using bot token
+    #     channel-id: "C04JZM55VC2"
+    #     # Message to post into Slack. Needed if using bot token
+    #     payload: |
+    #       {
+    #         "text": "MacServer Documentation Build result:\n${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+    #         "blocks": [
+    #           {
+    #             "type": "section",
+    #             "text": {
+    #               "type": "mrkdwn",
+    #               "text": "MacSetup build result:\n${{ job.status }}\n\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+    #             }
+    #           }
+    #         ]
+    #       }
+    #   env:
+    #     SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
