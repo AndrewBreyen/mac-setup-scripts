@@ -58,9 +58,8 @@ jobs:
     - name: Run RuboCop
       run: rubocop
 
-    - name: Send Slack Deployment Complete message
-      if: always()
-      id: slack-update
+    - name: Send Slack Deployment Complete message (Success)
+      if: success()
       uses: slackapi/slack-github-action@v1.24.0
       with:
         channel-id: "C04JZM55VC2"
@@ -71,12 +70,12 @@ jobs:
             "attachments": [
               {
                 "pretext": "Deployment finished",
-                "color": "${{ job.status == 'failure' ? 'danger' : '28a745' }}", # Use 'danger' for red if failed, otherwise '28a745' (green)
+                "color": "28a745", # Green for success
                 "fields": [
                   {
                     "title": "Status",
                     "short": true,
-                    "value": "${{ job.status }}"
+                    "value": "Success"
                   },
                   {
                     "title": "Branch",
@@ -89,6 +88,38 @@ jobs:
           }
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN}}
+    
+    - name: Send Slack Deployment Complete message (Failure)
+      if: failure()
+      uses: slackapi/slack-github-action@v1.24.0
+      with:
+        channel-id: "C04JZM55VC2"
+        update-ts: ${{ steps.slack-start.outputs.ts }}
+        payload: |
+          {
+            "text": "Deployment finished (FAILURE)",
+            "attachments": [
+              {
+                "pretext": "Deployment finished",
+                "color": "danger", # Red for failure
+                "fields": [
+                  {
+                    "title": "Status",
+                    "short": true,
+                    "value": "Failure"
+                  },
+                  {
+                    "title": "Branch",
+                    "short": true,
+                    "value": "${{ github.head_ref }}"
+                  }
+                ]
+              }
+            ]
+          }
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN}}
+
 
     # - name: Send Slack Deployment Complete message
     #   id: slack-update
