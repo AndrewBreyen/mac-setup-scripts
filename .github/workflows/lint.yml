@@ -14,21 +14,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 2.7
-    
-    - name: Install dependencies
-      run: gem install rubocop
-
-    - name: Run RuboCop
-      run: rubocop
-
-    - id: slack
+    - name: Send Slack Starting Deployment message
+      id: slack-start
       uses: slackapi/slack-github-action@v1.24.0
       with:
         channel-id: "C04JZM55VC2"
@@ -51,7 +38,24 @@ jobs:
           }
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN}}
-    - uses: slackapi/slack-github-action@v1.24.0
+    
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7
+    
+    - name: Install dependencies
+      run: gem install rubocop
+
+    - name: Run RuboCop
+      run: rubocop
+
+    - name: Send Slack Deployment Complete message
+      id: slack-update
+      uses: slackapi/slack-github-action@v1.24.0
       with:
         channel-id: "C04JZM55VC2"
         update-ts: ${{ steps.slack.outputs.ts }}
