@@ -35,7 +35,7 @@ jobs:
                   {
                     "title": "Branch",
                     "short": true,
-                    "value": "{{$GITHUB_HEAD_REF}}"
+                    "value": "${{ github.head_ref }}"
                   }
                 ]
               }
@@ -59,6 +59,7 @@ jobs:
       run: rubocop
 
     - name: Send Slack Deployment Complete message
+      if: always()
       id: slack-update
       uses: slackapi/slack-github-action@v1.24.0
       with:
@@ -70,12 +71,17 @@ jobs:
             "attachments": [
               {
                 "pretext": "Deployment finished",
-                "color": "28a745",
+                "color": "${{ job.status == 'failure' ? 'danger' : '28a745' }}", # Use 'danger' for red if failed, otherwise '28a745' (green)
                 "fields": [
                   {
                     "title": "Status",
                     "short": true,
-                    "value": "Completed"
+                    "value": "${{ job.status }}"
+                  },
+                  {
+                    "title": "Branch",
+                    "short": true,
+                    "value": "${{ github.head_ref }}"
                   }
                 ]
               }
@@ -83,6 +89,37 @@ jobs:
           }
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN}}
+
+    # - name: Send Slack Deployment Complete message
+    #   id: slack-update
+    #   uses: slackapi/slack-github-action@v1.24.0
+    #   with:
+    #     channel-id: "C04JZM55VC2"
+    #     update-ts: ${{ steps.slack-start.outputs.ts }}
+    #     payload: |
+    #       {
+    #         "text": "Deployment finished (Completed)",
+    #         "attachments": [
+    #           {
+    #             "pretext": "Deployment finished",
+    #             "color": "28a745",
+    #             "fields": [
+    #               {
+    #                 "title": "Status",
+    #                 "short": true,
+    #                 "value": "${{ job.status }}"
+    #               },
+    #               {
+    #                 "title": "Branch",
+    #                 "short": true,
+    #                 "value": "${{ github.head_ref }}"
+    #               }
+    #             ]
+    #           }
+    #         ]
+    #       }
+    #   env:
+    #     SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN}}
 
     # - name: Post to a Slack channel
     #   id: slack
