@@ -70,7 +70,7 @@ jobs:
             "attachments": [
               {
                 "pretext": "Deployment finished",
-                "color": "28a745", # Green for success
+                "color": "#28a745",
                 "fields": [
                   {
                     "title": "Status",
@@ -86,6 +86,7 @@ jobs:
               }
             ]
           }
+        
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN}}
     
@@ -101,7 +102,7 @@ jobs:
             "attachments": [
               {
                 "pretext": "Deployment finished",
-                "color": "danger", # Red for failure
+                "color": "danger",
                 "fields": [
                   {
                     "title": "Status",
