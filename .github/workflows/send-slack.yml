@@ -1,12 +1,9 @@
-name: on-push main
+name: send slack message on push not main
 
 on:
   push:
-  branches:
-      - "!main"
-  pull_request:
     branches:
-      - main
+      - "!main"
 
 jobs:
   lint:
