@@ -198,6 +198,10 @@ install_cask('spotify')
 configure_pyenv
 install_python_with_pyenv
 
+install_cask('postman')
+install_cask('visual-studio-code')
+
+
 # Custom completion message
 puts <<~BANNER
   #####
