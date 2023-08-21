@@ -5,6 +5,7 @@ on:
     branches:
       - "!main" # Matches branches other than 'main'
       - "!gh-pages" # Matches branches other than 'gh-pages'
+      - "main"
   pull_request:
     branches:
       - main
