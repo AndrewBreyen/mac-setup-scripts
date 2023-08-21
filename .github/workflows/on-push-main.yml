@@ -1,0 +1,37 @@
+name: Lint using Rubocop
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Post to a Slack channel
+      id: slack
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        # Slack channel ID where message will be posted. Needed if using bot token
+        channel-id: "C04JZM55VC2"
+        # Message to post into Slack. Needed if using bot token
+        payload: |
+          {
+            "text": "MacServer Documentation Build result:\n${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "MacSetup build result:\n${{ job.status }}\n\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                }
+              }
+            ]
+          }
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
