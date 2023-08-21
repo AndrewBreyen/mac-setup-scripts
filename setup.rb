@@ -191,15 +191,21 @@ BANNER
 
 install_homebrew
 update_homebrew
+
+# Install packages
 install_package('pyenv')
 install_package('gh')
 install_package('coreutils')
-install_cask('spotify')
-configure_pyenv
-install_python_with_pyenv
 
+# Install casks
+install_cask('spotify')
 install_cask('postman')
 install_cask('visual-studio-code')
+install_cask('authy')
+
+# Configure pyenv
+configure_pyenv
+install_python_with_pyenv
 
 # Custom completion message
 puts <<~BANNER
