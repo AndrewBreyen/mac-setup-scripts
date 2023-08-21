@@ -36,6 +36,11 @@ jobs:
                     "title": "Branch",
                     "short": true,
                     "value": "${{ github.ref_name }}"
+                  },
+                  {
+                    "title": "Commit Message",
+                    "short": false,
+                    "value": "${{ github.event.commits[0].message }}"
                   }
                 ]
               }
@@ -47,15 +52,15 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    # - name: Wait for 5 seconds
-    #   run: sleep 5
+    - name: Wait for 5 seconds
+      run: sleep 5
 
-    - name: Logging
-      run: |
-        echo "${{toJSON(github.event)}}"
+    # - name: Logging
+    #   run: |
+    #     echo "${{toJSON(github.event)}}"
 
-    - name: Intentional Fail
-      run: nonexistent-command
+    # - name: Intentional Fail
+    #   run: nonexistent-command
     
     # - name: Set up Ruby
     #   uses: ruby/setup-ruby@v1
@@ -91,6 +96,11 @@ jobs:
                     "title": "Branch",
                     "short": true,
                     "value": "${{ github.ref_name }}"
+                  },
+                  {
+                    "title": "Commit Message",
+                    "short": false,
+                    "value": "${{ github.event.commits[0].message }}"
                   }
                 ]
               }
@@ -123,6 +133,11 @@ jobs:
                     "title": "Branch",
                     "short": true,
                     "value": "${{ github.ref_name }}"
+                  },
+                  {
+                    "title": "Commit Message",
+                    "short": false,
+                    "value": "${{ github.event.commits[0].message }}"
                   }
                 ]
               }
