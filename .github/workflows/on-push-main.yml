@@ -15,14 +15,14 @@ jobs:
 
     - name: Post to a Slack channel
       id: slack
-      uses: slackapi/slack-github-action@v1.23.0
+      uses: slackapi/slack-github-action@v1.24.0
       with:
         # Slack channel ID where message will be posted. Needed if using bot token
         channel-id: "C04JZM55VC2"
         # Message to post into Slack. Needed if using bot token
         payload: |
           {
-            "text": "MacServer Documentation Build result:\n${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+            "text": "Mac Setup Script Build result:\n${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
             "blocks": [
               {
                 "type": "section",
