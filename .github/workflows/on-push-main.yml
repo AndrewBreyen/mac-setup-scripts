@@ -1,7 +1,9 @@
-name: Lint using Rubocop
+name: on-push main
 
 on:
   push:
+  branches:
+      - "!main"
   pull_request:
     branches:
       - main
