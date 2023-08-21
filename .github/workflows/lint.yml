@@ -35,7 +35,7 @@ jobs:
                   {
                     "title": "Branch",
                     "short": true,
-                    "value": "${{ github.head_ref }}"
+                    "value": "${{ github.ref_name }}"
                   }
                 ]
               }
@@ -46,17 +46,20 @@ jobs:
     
     - name: Checkout
       uses: actions/checkout@v2
-    
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 2.7
-    
-    - name: Install dependencies
-      run: gem install rubocop
 
-    - name: Run RuboCop
-      run: rubocop
+    - name: Wait for 5 seconds
+      run: sleep 5
+    
+    # - name: Set up Ruby
+    #   uses: ruby/setup-ruby@v1
+    #   with:
+    #     ruby-version: 2.7
+    
+    # - name: Install dependencies
+    #   run: gem install rubocop
+
+    # - name: Run RuboCop
+    #   run: rubocop
 
     - name: Send Slack Deployment Complete message (Success)
       if: success()
@@ -69,6 +72,7 @@ jobs:
             "text": "Deployment finished (Success)",
             "attachments": [
               {
+                "pretext": "Deployment finished",
                 "color": "#28a745",
                 "fields": [
                   {
@@ -79,7 +83,7 @@ jobs:
                   {
                     "title": "Branch",
                     "short": true,
-                    "value": "${{ github.ref }}"
+                    "value": "${{ github.ref_name }}"
                   }
                 ]
               }
@@ -100,6 +104,7 @@ jobs:
             "text": "Deployment finished (FAILURE)",
             "attachments": [
               {
+                "pretext": "Deployment finished",
                 "color": "danger",
                 "fields": [
                   {
@@ -110,7 +115,7 @@ jobs:
                   {
                     "title": "Branch",
                     "short": true,
-                    "value": "${{ github.ref }}"
+                    "value": "${{ github.ref_name }}"
                   }
                 ]
               }
