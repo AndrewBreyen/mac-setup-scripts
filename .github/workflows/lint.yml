@@ -31,6 +31,11 @@ jobs:
                     "title": "Status",
                     "short": true,
                     "value": "In Progress"
+                  },
+                  {
+                    "title": "Branch",
+                    "short": true,
+                    "value": "{{$GITHUB_HEAD_REF}}"
                   }
                 ]
               }
@@ -58,7 +63,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.24.0
       with:
         channel-id: "C04JZM55VC2"
-        update-ts: ${{ steps.slack.outputs.ts }}
+        update-ts: ${{ steps.slack-start.outputs.ts }}
         payload: |
           {
             "text": "Deployment finished (Completed)",
