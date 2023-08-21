@@ -1,11 +1,9 @@
-name: Lint using Rubocop
+name: on-push main
 
 on:
   push:
-    branches:
-      - "!main" # Matches branches other than 'main'
-      - "!gh-pages" # Matches branches other than 'gh-pages'
-      - "main"
+  branches:
+      - "!main"
   pull_request:
     branches:
       - main
@@ -16,28 +14,17 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 2.7
-    
-    - name: Install dependencies
-      run: gem install rubocop
-
-    - name: Run RuboCop
-      run: rubocop
 
     - name: Post to a Slack channel
       id: slack
-      uses: slackapi/slack-github-action@v1.23.0
+      uses: slackapi/slack-github-action@v1.24.0
       with:
         # Slack channel ID where message will be posted. Needed if using bot token
         channel-id: "C04JZM55VC2"
         # Message to post into Slack. Needed if using bot token
         payload: |
           {
-            "text": "MacServer Documentation Build result:\n${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+            "text": "Mac Setup Script Build result:\n${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
             "blocks": [
               {
                 "type": "section",
