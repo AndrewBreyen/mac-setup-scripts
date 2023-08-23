@@ -203,6 +203,7 @@ install_cask('postman')
 install_cask('visual-studio-code')
 install_cask('authy')
 install_cask('gimp')
+install_cask('slack')
 
 # Configure pyenv
 configure_pyenv
