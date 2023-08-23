@@ -202,6 +202,7 @@ install_cask('spotify')
 install_cask('postman')
 install_cask('visual-studio-code')
 install_cask('authy')
+install_cask('gimp')
 
 # Configure pyenv
 configure_pyenv
